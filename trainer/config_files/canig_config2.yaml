@@ -1,0 +1,47 @@
+number: '0123456789'
+symbol: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ "
+lang_char: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZЁЂЄІЇЈЉЊЋЎЏАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюяёђєіїјљњћўџҐґҮүө'
+experiment_name: 'canig2'
+train_data: 'all_data'
+valid_data: 'all_data/canig_val'
+manualSeed: 1111
+workers: 4
+batch_size: 32
+#num_iter: 300000
+num_iter: 30000
+valInterval: 1000
+saved_model: 'saved_models/cyrillic/cyrillic.pth'
+FT: False
+optim: False # default is Adadelta
+lr: 1.
+beta1: 0.9
+rho: 0.95
+eps: 0.00000001
+grad_clip: 5
+#Data processing
+select_data: 'canig' # this is dataset folder in train_data
+batch_ratio: '1'
+total_data_usage_ratio: 1.0
+batch_max_length: 25
+imgH: 32
+imgW: 100
+rgb: False
+contrast_adjust: False
+sensitive: True
+PAD: True
+contrast_adjust: 0.0
+data_filtering_off: False
+# Model Architecture
+Transformation: 'None'
+#Transformation: 'TPS'
+FeatureExtraction: 'ResNet'
+SequenceModeling: 'BiLSTM'
+Prediction: 'CTC'
+num_fiducial: 20
+input_channel: 1
+output_channel: 512
+hidden_size: 512
+decode: 'greedy'
+new_prediction: False
+freeze_FeatureFxtraction: False
+freeze_SequenceModeling: False
