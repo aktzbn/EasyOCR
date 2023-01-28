@@ -276,7 +276,13 @@ def ctcBeamSearch(mat, classes, ignore_idx, lm, beamWidth=25, dict_list = []):
 class CTCLabelConverter(object):
     """ Convert between text-label and text-index """
 
-    def __init__(self, character, separator_list = {}, dict_pathlist = {}):
+    def __init__(self, 
+            character,
+            separator_list = {},
+            dict_pathlist = {},
+            word_chars = [],
+            beam_width = 20,
+        ):
         # character (str): set of the possible characters.
         dict_character = list(character)
 
@@ -333,10 +339,8 @@ class CTCLabelConverter(object):
 #   * softmax-function already applied
 #   * CTC-blank must be the last entry along the character dimension in the matrix
 
-        beam_width = 20
         corpus = lm_text
         self.chars = ''.join(dict_character)
-        word_chars = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя'
         self.wbs = WordBeamSearch(beam_width, 'Words', 0.0, corpus.encode('utf8'), self.chars.encode('utf8'), word_chars.encode('utf8'))
 
     def encode(self, text, batch_max_length=25):

@@ -32,7 +32,8 @@ class Reader(object):
     def __init__(self, lang_list, gpu=True, model_storage_directory=None,
                  user_network_directory=None, recog_network = 'standard',
                  download_enabled=True, detector=True, recognizer=True,
-                 verbose=True, quantize=True, cudnn_benchmark=False):
+                 verbose=True, quantize=True, cudnn_benchmark=False,
+                 word_chars = [], beam_width = 20, corpus_path = None):
         """Create an EasyOCR Reader
 
         Parameters:
@@ -217,7 +218,10 @@ class Reader(object):
 
         dict_list = {}
         for lang in lang_list:
-            dict_list[lang] = os.path.join(BASE_PATH, 'dict', lang + ".txt")
+            if corpus_path is not None:
+                dict_list[lang] = corpus_path
+            else:
+                dict_list[lang] = os.path.join(BASE_PATH, 'dict', lang + ".txt")
 
         if detector:
             self.detector = get_detector(detector_path, self.device, quantize, cudnn_benchmark=cudnn_benchmark)
@@ -238,7 +242,8 @@ class Reader(object):
                 network_params = recog_config['network_params']
             self.recognizer, self.converter = get_recognizer(recog_network, network_params,\
                                                          self.character, separator_list,\
-                                                         dict_list, model_path, device = self.device, quantize=quantize)
+                                                         dict_list, model_path, device = self.device, quantize=quantize,
+                                                         word_chars=word_chars, beam_width=beam_width)
 
     def setModelLanguage(self, language, lang_list, list_lang, list_lang_string):
         self.model_lang = language
