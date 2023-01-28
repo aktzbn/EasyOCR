@@ -428,7 +428,11 @@ class Reader(object):
         '''
         img, img_cv_grey = reformat_input(image)
 
-        result = self.recognize(img_cv_grey, horizontal_list, free_list,\
+        # Sort by width. I think it affect size of T dimension during batch processing
+        # Fow boxes of very different width some will be bad
+        horizontal_list_sorted = sorted(horizontal_list, key=lambda x: x[2]) 
+
+        result = self.recognize(img_cv_grey, horizontal_list_sorted, free_list,\
                                 decoder, beamWidth, batch_size,\
                                 workers, allowlist, blocklist, detail, rotation_info,\
                                 paragraph, contrast_ths, adjust_contrast,\
