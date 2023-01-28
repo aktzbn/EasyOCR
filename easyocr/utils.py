@@ -341,7 +341,7 @@ class CTCLabelConverter(object):
 
         corpus = lm_text
         self.chars = ''.join(dict_character)
-        self.wbs = WordBeamSearch(beam_width, 'Words', 0.0, corpus.encode('utf8'), self.chars.encode('utf8'), word_chars.encode('utf8'))
+        self.wbs = WordBeamSearch(beam_width, 'NGrams', 0.0, corpus.encode('utf8'), self.chars.encode('utf8'), word_chars.encode('utf8'))
 
     def encode(self, text, batch_max_length=25):
         """convert text-label into text-index.
