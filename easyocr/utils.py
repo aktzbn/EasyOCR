@@ -413,39 +413,39 @@ class CTCLabelConverter(object):
 
         return texts
 
-    def decode_wordbeamsearch(self, mat, beamWidth=5):
-        texts = []
-        argmax = np.argmax(mat, axis = 2)
+    # def decode_wordbeamsearch(self, mat, beamWidth=5):
+    #     texts = []
+    #     argmax = np.argmax(mat, axis = 2)
 
-        for i in range(mat.shape[0]):
-            string = ''
-            # without separators - use space as separator
-            if len(self.separator_list) == 0:
-                space_idx = self.dict[' ']
+    #     for i in range(mat.shape[0]):
+    #         string = ''
+    #         # without separators - use space as separator
+    #         if len(self.separator_list) == 0:
+    #             space_idx = self.dict[' ']
 
-                data = np.argwhere(argmax[i]!=space_idx).flatten()
-                group = np.split(data, np.where(np.diff(data) != 1)[0]+1)
-                group = [ list(item) for item in group if len(item)>0]
+    #             data = np.argwhere(argmax[i]!=space_idx).flatten()
+    #             group = np.split(data, np.where(np.diff(data) != 1)[0]+1)
+    #             group = [ list(item) for item in group if len(item)>0]
 
-                for j, list_idx in enumerate(group):
-                    matrix = mat[i, list_idx,:]
-                    t = ctcBeamSearch(matrix, self.character, self.ignore_idx, None,\
-                                      beamWidth=beamWidth, dict_list=self.dict_list)
-                    if j == 0: string += t
-                    else: string += ' '+t
+    #             for j, list_idx in enumerate(group):
+    #                 matrix = mat[i, list_idx,:]
+    #                 t = ctcBeamSearch(matrix, self.character, self.ignore_idx, None,\
+    #                                   beamWidth=beamWidth, dict_list=self.dict_list)
+    #                 if j == 0: string += t
+    #                 else: string += ' '+t
 
-            # with separators
-            else:
-                words = word_segmentation(argmax[i])
+    #         # with separators
+    #         else:
+    #             words = word_segmentation(argmax[i])
 
-                for word in words:
-                    matrix = mat[i, word[1][0]:word[1][1]+1,:]
-                    if word[0] == '': dict_list = []
-                    else: dict_list = self.dict_list[word[0]]
-                    t = ctcBeamSearch(matrix, self.character, self.ignore_idx, None, beamWidth=beamWidth, dict_list=dict_list)
-                    string += t
-            texts.append(string)
-        return texts
+    #             for word in words:
+    #                 matrix = mat[i, word[1][0]:word[1][1]+1,:]
+    #                 if word[0] == '': dict_list = []
+    #                 else: dict_list = self.dict_list[word[0]]
+    #                 t = ctcBeamSearch(matrix, self.character, self.ignore_idx, None, beamWidth=beamWidth, dict_list=dict_list)
+    #                 string += t
+    #         texts.append(string)
+    #     return texts
 
 def four_point_transform(image, rect):
     (tl, tr, br, bl) = rect
