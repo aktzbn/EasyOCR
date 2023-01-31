@@ -12,8 +12,8 @@ import sys, os
 from zipfile import ZipFile
 from .imgproc import loadImage
 
-from ctc_decoder import beam_search as beam_search2, LanguageModel
-from word_beam_search import WordBeamSearch
+#from ctc_decoder import beam_search as beam_search2, LanguageModel
+#from word_beam_search import WordBeamSearch
 
 if sys.version_info[0] == 2:
     from six.moves.urllib.request import urlretrieve
@@ -324,7 +324,7 @@ class CTCLabelConverter(object):
         self.permutation = [z + 1 for z in range(len(self.dict_chars))]
         self.permutation.append(0)
 
-        self.lm = LanguageModel(lm_text, self.dict_chars)
+        ##self.lm = LanguageModel(lm_text, self.dict_chars)
 
 # Parameters of the constructor of the `WordBeamSearch` class:
 # * Beam Width (beam_width): number of beams which are kept per time-step
@@ -346,8 +346,8 @@ class CTCLabelConverter(object):
 #   * softmax-function already applied
 #   * CTC-blank must be the last entry along the character dimension in the matrix
 
-        corpus = lm_text
-        self.wbs = WordBeamSearch(beam_width, 'NGrams', 0.0, corpus.encode('utf8'), self.dict_chars.encode('utf8'), word_chars.encode('utf8'))
+        ##corpus = lm_text
+        ##self.wbs = WordBeamSearch(beam_width, 'NGrams', 0.0, corpus.encode('utf8'), self.dict_chars.encode('utf8'), word_chars.encode('utf8'))
 
     def encode(self, text, batch_max_length=25):
         """convert text-label into text-index.
@@ -383,21 +383,22 @@ class CTCLabelConverter(object):
             index += l
         return texts
 
+    def decode_beamsearch(self, xmat, beamWidth=5):
+        mat = xmat.detach().numpy()
+        texts = []
+        for i in range(mat.shape[0]):
+            t = ctcBeamSearch(mat[i], self.character, self.ignore_idx, None, beamWidth=beamWidth)
+            texts.append(t)
+        return texts
+
     # def decode_beamsearch(self, mat, beamWidth=5):
+    #     permuted = mat[:,:, self.permutation]
+
     #     texts = []
-    #     for i in range(mat.shape[0]):
-    #         t = ctcBeamSearch(mat[i], self.character, self.ignore_idx, None, beamWidth=beamWidth)
+    #     for i in range(permuted.shape[0]):
+    #         t = beam_search2(permuted[i], self.dict_chars, beam_width=beamWidth, lm=self.lm)
     #         texts.append(t)
     #     return texts
-
-    def decode_beamsearch(self, mat, beamWidth=5):
-        permuted = mat[:,:, self.permutation]
-
-        texts = []
-        for i in range(permuted.shape[0]):
-            t = beam_search2(permuted[i], self.dict_chars, beam_width=beamWidth, lm=self.lm)
-            texts.append(t.replace('[blank]', ''))
-        return texts
 
     def decode_wordbeamsearch(self, mat, beamWidth=5):
         texts = []

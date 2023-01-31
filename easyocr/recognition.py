@@ -127,7 +127,7 @@ def recognizer_predict(model, converter, test_loader, batch_max_length,\
                 preds_index = preds_index.view(-1)
                 preds_str = converter.decode_greedy(preds_index.data.cpu().detach().numpy(), preds_size.data)
             elif decoder == 'beamsearch':
-                k = preds_prob.cpu().detach().numpy()
+                k = preds_prob.cpu() # This for pytorch ctc. ToNumpy made in converter
                 preds_str = converter.decode_beamsearch(k, beamWidth=beamWidth)
             elif decoder == 'wordbeamsearch':
                 k = preds_prob.cpu().detach().numpy()

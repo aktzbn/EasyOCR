@@ -33,7 +33,7 @@ class Reader(object):
                  user_network_directory=None, recog_network = 'standard',
                  download_enabled=True, detector=True, recognizer=True,
                  verbose=True, quantize=True, cudnn_benchmark=False,
-                 word_chars = [], beam_width = 20, corpus_path = None):
+                 word_chars = [], beam_width = 20, corpus_path = None, decoder_obj = None):
         """Create an EasyOCR Reader
 
         Parameters:
@@ -244,6 +244,8 @@ class Reader(object):
                                                          self.character, separator_list,\
                                                          dict_list, model_path, device = self.device, quantize=quantize,
                                                          word_chars=word_chars, beam_width=beam_width)
+            if decoder_obj:
+                self.converter = decoder_obj
 
     def setModelLanguage(self, language, lang_list, list_lang, list_lang_string):
         self.model_lang = language
