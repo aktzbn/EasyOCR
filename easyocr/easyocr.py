@@ -414,34 +414,6 @@ class Reader(object):
 
         return result
 
-    def readtext_from_rects(self, image, horizontal_list, free_list = [], decoder = 'greedy', beamWidth= 5, batch_size = 1,\
-                 workers = 0, allowlist = None, blocklist = None, detail = 1,\
-                 rotation_info = None, paragraph = False, min_size = 20,\
-                 contrast_ths = 0.1,adjust_contrast = 0.5, filter_ths = 0.003,\
-                 text_threshold = 0.7, low_text = 0.4, link_threshold = 0.4,\
-                 canvas_size = 2560, mag_ratio = 1.,\
-                 slope_ths = 0.1, ycenter_ths = 0.5, height_ths = 0.5,\
-                 width_ths = 0.5, y_ths = 0.5, x_ths = 1.0, add_margin = 0.1, 
-                 threshold = 0.2, bbox_min_score = 0.2, bbox_min_size = 3, max_candidates = 0,
-                 output_format='standard'):
-        '''
-        Parameters:
-        image: file path or numpy-array or a byte stream object
-        '''
-        img, img_cv_grey = reformat_input(image)
-
-        # Sort by width. I think it affect size of T dimension during batch processing
-        # Fow boxes of very different width some will be bad
-        horizontal_list_sorted = sorted(horizontal_list, key=lambda x: x[2]) 
-
-        result = self.recognize(img_cv_grey, horizontal_list_sorted, free_list,\
-                                decoder, beamWidth, batch_size,\
-                                workers, allowlist, blocklist, detail, rotation_info,\
-                                paragraph, contrast_ths, adjust_contrast,\
-                                filter_ths, y_ths, x_ths, False, output_format)
-
-        return result
-    
     def readtextlang(self, image, decoder = 'greedy', beamWidth= 5, batch_size = 1,\
                  workers = 0, allowlist = None, blocklist = None, detail = 1,\
                  rotation_info = None, paragraph = False, min_size = 20,\
