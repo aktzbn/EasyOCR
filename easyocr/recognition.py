@@ -96,6 +96,41 @@ class AlignCollate(object):
         image_tensors = torch.cat([t.unsqueeze(0) for t in resized_images], 0)
         return image_tensors
 
+def recognizer_predict_no_decode(model, converter, test_loader, batch_max_length,\
+                       ignore_idx, char_group_idx, decoder = 'greedy', beamWidth= 5, device = 'cpu'):
+    model.eval()
+    result = []
+    with torch.no_grad():
+        for image_tensors in test_loader:
+            batch_size = image_tensors.size(0)
+            image = image_tensors.to(device)
+            # For max length prediction
+            length_for_pred = torch.IntTensor([batch_max_length] * batch_size).to(device)
+            text_for_pred = torch.LongTensor(batch_size, batch_max_length + 1).fill_(0).to(device)
+
+            preds = model(image, text_for_pred)
+
+            # Select max probabilty (greedy decoding) then decode index to character
+            preds_size = torch.IntTensor([preds.size(1)] * batch_size)
+
+            ######## filter ignore_char, rebalance
+            preds_prob = F.softmax(preds, dim=2)
+            preds_prob = preds_prob.cpu().detach().numpy()
+            preds_prob[:,:,ignore_idx] = 0.
+            pred_norm = preds_prob.sum(axis=2)
+            preds_prob = preds_prob/np.expand_dims(pred_norm, axis=-1)
+
+            # preds_prob = torch.from_numpy(preds_prob).float().to(device) # TODO: is it required?
+
+            #for i in range(c.shape[-1]):
+            #print c[...,i]
+
+            # x = preds_prob.cpu()
+            for i in range(preds_prob.shape[0]):
+                result.append(preds_prob[i,:,:])
+
+    return result
+
 def recognizer_predict(model, converter, test_loader, batch_max_length,\
                        ignore_idx, char_group_idx, decoder = 'greedy', beamWidth= 5, device = 'cpu'):
     model.eval()
@@ -184,7 +219,7 @@ def get_recognizer(recog_network, network_params, character,\
     return model, converter
 
 def get_text(character, imgH, imgW, recognizer, converter, image_list,\
-             ignore_char = '',decoder = 'greedy', beamWidth =5, batch_size=1, contrast_ths=0.1,\
+             ignore_char = '', decoder = 'greedy', beamWidth =5, batch_size=1, contrast_ths=0.1,\
              adjust_contrast=0.5, filter_ths = 0.003, workers = 1, device = 'cpu'):
     batch_max_length = int(imgW/10)
 
@@ -201,6 +236,12 @@ def get_text(character, imgH, imgW, recognizer, converter, image_list,\
     test_loader = torch.utils.data.DataLoader(
         test_data, batch_size=batch_size, shuffle=False,
         num_workers=int(workers), collate_fn=AlignCollate_normal, pin_memory=True)
+
+    if decoder == 'none':
+        # predict first round
+        result0 = recognizer_predict_no_decode(recognizer, converter, test_loader,batch_max_length,\
+                                 ignore_idx, char_group_idx, decoder, beamWidth, device = device)
+        return result0
 
     # predict first round
     result1 = recognizer_predict(recognizer, converter, test_loader,batch_max_length,\
