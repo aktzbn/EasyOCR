@@ -47,6 +47,7 @@ def train(opt, show_number = 2, amp=False):
         shuffle=True,  # 'True' to check training progress with validation function.
         num_workers=int(opt.workers), prefetch_factor=512,
         collate_fn=AlignCollate_valid, pin_memory=True)
+
     log.write(valid_dataset_log)
     print('-' * 80)
     log.write('-' * 80 + '\n')
@@ -220,8 +221,11 @@ def train(opt, show_number = 2, amp=False):
             optimizer.step()
         loss_avg.add(cost)
 
+        if i % 1000 == 0:
+            print('iter: ', i)
+
         # validation part
-        if (i % opt.valInterval == 0) and (i!=0):
+        if (i % opt.valInterval == 0) and (i >= opt.no_val_iter_count):
             print('training time: ', time.time()-t1)
             t1=time.time()
             elapsed_time = time.time() - start_time
@@ -272,7 +276,7 @@ def train(opt, show_number = 2, amp=False):
                 print('validation time: ', time.time()-t1)
                 t1=time.time()
         # save model per N iter.
-        if (i + 1) % 1000 == 0:
+        if ((i + 1) % 1000 == 0) and (i >= opt.no_val_iter_count):
             torch.save(
                 model.state_dict(), f'./saved_models/{opt.experiment_name}/iter_{i+1}.pth')
 
