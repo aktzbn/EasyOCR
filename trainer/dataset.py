@@ -12,6 +12,7 @@ import numpy as np
 from torch.utils.data import Dataset, ConcatDataset, Subset
 from torch._utils import _accumulate
 import torchvision.transforms as transforms
+import functools
 
 def contrast_grey(img):
     high = np.percentile(img, 90)
@@ -169,6 +170,7 @@ class OCRDataset(Dataset):
     def __len__(self):
         return self.nSamples
 
+    @functools.lru_cache(maxsize=100000)
     def __getitem__(self, index):
         index = self.filtered_index_list[index]
         img_fname = self.df.at[index,'filename']
